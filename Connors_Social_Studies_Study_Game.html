@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Connor's Social Studies Study Game</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--text:#172033;--muted:#64748b;--blue:#2563eb;--blue2:#dbeafe;--green:#dcfce7;--red:#fee2e2;--border:#dbe2ea}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+main{max-width:620px;margin:auto;padding:18px 16px 42px}.hidden{display:none!important}
+.center{text-align:center}.eyebrow{font-size:12px;font-weight:800;color:var(--muted);letter-spacing:.08em}.sub{color:var(--muted);line-height:1.45}
+h1{font-size:27px;margin:6px 0} button{font:inherit;color:inherit;touch-action:manipulation}
+.menu{display:grid;gap:12px;margin-top:20px}.big{width:100%;min-height:70px;border:1px solid var(--border);background:var(--card);border-radius:18px;padding:14px 17px;text-align:left;font-weight:800;font-size:19px}
+.big.primary,.next{background:var(--blue);color:#fff;border-color:var(--blue)}.smalltext{display:block;font-size:14px;font-weight:500;color:var(--muted);margin-top:3px}.primary .smalltext{color:#e8efff}
+.tip,.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px}.tip{margin-top:16px;font-size:14px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:10px}.home{min-height:46px;padding:0 15px;border:1px solid var(--border);background:#fff;border-radius:13px;font-weight:800}
+.progress{font-size:14px;color:var(--muted);font-weight:800}.bar{height:8px;background:#e6ebf2;border-radius:10px;overflow:hidden;margin:14px 0}.fill{height:100%;background:var(--blue)}
+.card{min-height:215px;display:flex;flex-direction:column;justify-content:center}.cat{font-size:12px;font-weight:900;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:12px}.q{font-size:21px;font-weight:850;line-height:1.3}
+.answers{margin-top:18px}.answer{display:block;width:100%;min-height:58px;margin:10px 0;border:1px solid var(--border);border-radius:14px;background:#f8fafc;padding:12px 14px;text-align:left;font-weight:750}
+.feedback{margin-top:14px;border-radius:14px;padding:14px;font-weight:800}.good{background:var(--green)}.bad{background:var(--red)}.next{width:100%;min-height:58px;border:0;border-radius:16px;margin-top:14px;font-weight:850;font-size:18px}
+.result{font-size:42px;font-weight:900}.iphone{margin-top:24px}.iphone summary{font-weight:850;cursor:pointer;padding:4px}.iphone li{margin:9px 0;line-height:1.4}
+@media(max-width:360px){main{padding-left:12px;padding-right:12px}.q{font-size:19px}.big{font-size:18px}}
+</style>
+</head>
+<body><main>
+<section id="home">
+<div class="center"><div class="eyebrow">SOCIAL STUDIES • CHAPTER 10</div><h1>Connor's Study Game</h1><div class="sub">Mining • Railroads • Industry • Corporations</div></div>
+<div class="menu">
+<button class="big" data-mode="learn">📚 Learn<span class="smalltext">Flip through the must-know facts</span></button>
+<button class="big primary" data-mode="quiz">🎯 Quiz Me<span class="smalltext">Multiple choice with instant feedback</span></button>
+<button class="big" data-mode="people">👤 Who Am I?<span class="smalltext">Carnegie, Rockefeller, Morgan & more</span></button>
+<button class="big" id="mistakes">🔁 Review Mistakes<span class="smalltext" id="mistakeText">No missed questions yet</span></button>
+</div>
+<div class="tip"><b>Goal:</b> Score 80% or better twice. Questions you miss automatically go into Review Mistakes.</div>
+</section>
+
+<section id="game" class="hidden">
+<div class="top"><button class="home" id="homeBtn">← Home</button><div class="progress" id="progress"></div></div>
+<div class="bar"><div class="fill" id="fill"></div></div>
+<div class="card"><div class="cat" id="cat"></div><div class="q" id="q"></div><div class="answers" id="answers"></div></div>
+<div id="feedback" class="feedback hidden"></div><button id="next" class="next hidden">Next →</button>
+</section>
+
+<section id="results" class="hidden center">
+<div id="emoji" style="font-size:52px">🎉</div><h1>Round Complete!</h1><div class="result" id="score"></div><p class="sub" id="msg"></p>
+<button class="next" id="again">Play Again</button><button class="big center" id="resultHome" style="margin-top:12px">Home</button>
+</section>
+
+<details class="tip iphone"><summary>📱 Save to iPhone Home Screen</summary>
+<ol class="sub"><li>Open this file in <b>Safari</b>.</li><li>Tap the <b>Share</b> button (square with the ↑ arrow).</li><li>Tap <b>Add to Home Screen</b>.</li><li>Name it <b>Social Studies</b> and tap <b>Add</b>.</li></ol>
+</details>
+</main>
+<script>
+const facts=[
+["Mining","What is a lode?","A rich vein of gold or silver."],
+["Mining","What was the Comstock Lode?","A huge silver discovery in Nevada in 1859."],
+["Mining","What happened when mining deposits ran out?","Miners left, businesses lost customers, and many boomtowns became ghost towns."],
+["Mining","Who were vigilantes?","Self-appointed law enforcers who punished suspected criminals, often without trials."],
+["Railroads","What is a transcontinental railroad?","A railroad that crosses a continent from coast to coast."],
+["Railroads","Where did the Union Pacific build from?","Westward from Omaha, Nebraska."],
+["Railroads","Where did the Central Pacific build from?","Eastward from Sacramento, California."],
+["Railroads","Where and when did the two lines meet?","Promontory, Utah, on May 10, 1869."],
+["Railroads","What is a subsidy?","Government financial aid or a land grant."],
+["Railroads","What is railroad gauge?","The distance between the rails of a railroad track."],
+["Railroads","Why did standardizing gauge matter?","It allowed trains and freight to move through a connected national network more efficiently."],
+["Railroads","Who invented the railroad air brake?","George Westinghouse."],
+["Railroads","What did George Pullman develop?","A comfortable railroad sleeping car."],
+["Business","What is a rebate?","A discount. Railroads often gave them to large customers."],
+["Business","What was a railroad pool?","An agreement to divide business and fix prices."],
+["Steel","What did the Bessemer process do?","It removed impurities from molten iron, making steel faster and cheaper to produce."],
+["Steel","Why did Pittsburgh become a steel center?","It was near coal supplies and good transportation."],
+["Carnegie","What industry is Andrew Carnegie associated with?","Steel."],
+["Carnegie","What is vertical integration?","One company controls multiple stages of production, transportation, and distribution."],
+["Carnegie","What was Carnegie's Gospel of Wealth idea?","The wealthy should use surplus wealth to benefit society."],
+["Corporations","What is stock?","Partial ownership in a company."],
+["Corporations","What is a corporation?","A business owned by investors or stockholders."],
+["Corporations","What is a dividend?","A share of a corporation's profits paid to stockholders."],
+["Morgan","Who was J. P. Morgan?","A powerful banker who combined major companies and created U.S. Steel."],
+["Rockefeller","What industry is John D. Rockefeller associated with?","Oil and Standard Oil."],
+["Big Business","What is a trust?","A group of corporations controlled by a single board."],
+["Big Business","What is a monopoly?","Control of all or nearly all of an industry."],
+["Big Business","What is capitalism?","An economic system in which businesses are privately owned."],
+["Government","What did the Sherman Antitrust Act of 1890 try to do?","Limit trusts and monopolies. It was initially too weak to be very effective."]
+];
+const people=[
+["I built a steel empire and used vertical integration. Who am I?","Andrew Carnegie",["John D. Rockefeller","Andrew Carnegie","J. P. Morgan","Cornelius Vanderbilt"]],
+["I built Standard Oil and dominated oil refining. Who am I?","John D. Rockefeller",["George Pullman","J. P. Morgan","John D. Rockefeller","George Westinghouse"]],
+["I was a powerful banker who formed U.S. Steel. Who am I?","J. P. Morgan",["Cornelius Vanderbilt","J. P. Morgan","Andrew Carnegie","Henry Comstock"]],
+["I consolidated railroad lines into a huge system. Who am I?","Cornelius Vanderbilt",["George Westinghouse","Cornelius Vanderbilt","George Pullman","John D. Rockefeller"]],
+["My air brake made trains safer. Who am I?","George Westinghouse",["George Pullman","George Westinghouse","J. P. Morgan","Andrew Carnegie"]],
+["I designed sleeping cars that made rail travel more comfortable. Who am I?","George Pullman",["George Pullman","Henry Bessemer","Cornelius Vanderbilt","John D. Rockefeller"]]
+];
+const quiz=[
+["Mining","A mining strike attracts thousands of miners. What is most likely to happen next?","A boomtown grows nearby",["A boomtown grows nearby","Railroads immediately close","A monopoly is outlawed","The mine becomes a corporation"]],
+["Mining","Why did many boomtowns become ghost towns?","The ore ran out and miners left",["Railroad gauges changed","The ore ran out and miners left","Steel became cheaper","The government banned mining"]],
+["Railroads","Why did the federal government give subsidies and land to railroad companies?","To encourage railroad expansion",["To stop western settlement","To eliminate steel production","To make travel slower","To encourage railroad expansion"]],
+["Railroads","Which workers built much of the Central Pacific Railroad?","Chinese immigrants",["Chinese immigrants","French soldiers","British bankers","Gold prospectors"]],
+["Railroads","What was a major effect of completing the transcontinental railroad?","People and goods could move across the country faster and more cheaply",["Mining ended immediately","People and goods could move across the country faster and more cheaply","All railroad competition ended","Factories moved out of cities"]],
+["Railroads","Why was solving the gauge problem important?","It helped create one connected national rail network",["It made trains use less coal","It helped create one connected national rail network","It ended government subsidies","It created sleeping cars"]],
+["Economy","Railroad expansion increased demand most directly for which product?","Steel",["Cotton","Steel","Tea","Tobacco"]],
+["Railroads","Why were small farmers angry about railroad rebates?","Large customers received discounts while small shippers paid higher rates",["Farmers were forbidden to use trains","Large customers received discounts while small shippers paid higher rates","Railroads stopped carrying crops","Farmers had to build their own tracks"]],
+["Steel","What was the biggest economic effect of the Bessemer process?","Steel became cheaper and faster to produce",["Steel became cheaper and faster to produce","Iron became impossible to use","Railroads stopped expanding","Oil replaced steel"]],
+["Carnegie","Why did vertical integration give Carnegie an advantage?","He controlled costs across many stages of steel production",["He avoided making steel","He controlled costs across many stages of steel production","The government owned his factories","He had no competitors"]],
+["Corporations","Why did businesses sell stock?","To raise capital for expansion",["To reduce their revenue","To raise capital for expansion","To eliminate investors","To pay railroad rebates"]],
+["Rockefeller","How did Standard Oil weaken competitors?","It cut prices, bought rivals, and obtained railroad rebates",["It stopped refining oil","It cut prices, bought rivals, and obtained railroad rebates","It gave competitors its factories","It refused to use railroads"]],
+["Big Business","How is a monopoly different from ordinary competition?","One business controls all or nearly all of an industry",["Many businesses compete equally","One business controls all or nearly all of an industry","The government owns every business","Stockholders receive no profits"]],
+["Government","Why did critics oppose trusts?","They reduced competition and concentrated economic and political power",["They created too many competitors","They reduced competition and concentrated economic and political power","They prevented corporations from growing","They made products impossible to ship"]],
+["Big Business","What was one argument in favor of large corporations?","They could increase efficiency and lower production costs",["They always eliminated pollution","They could increase efficiency and lower production costs","They ended all labor disputes","They prevented industrial growth"]]
+];
+let mode="",items=[],i=0,score=0,mistakes=[];
+const $=id=>document.getElementById(id);
+function shuffle(a){let b=[...a];for(let j=b.length-1;j>0;j--){let k=Math.floor(Math.random()*(j+1));[b[j],b[k]]=[b[k],b[j]]}return b}
+function show(id){["home","game","results"].forEach(x=>$(x).classList.add("hidden"));$(id).classList.remove("hidden")}
+function updateMistakes(){$("mistakeText").textContent=mistakes.length?`${mistakes.length} question${mistakes.length===1?"":"s"} to practice`:"No missed questions yet"}
+function start(m){mode=m;i=0;score=0;if(m==="learn")items=facts.map(f=>({cat:f[0],q:f[1],a:f[2],learn:true}));else if(m==="people")items=shuffle(people).map(x=>({cat:"Who Am I?",q:x[0],a:x[1],opts:x[2]}));else if(m==="mistakes")items=shuffle(mistakes);else items=shuffle(quiz).map(x=>({cat:x[0],q:x[1],a:x[2],opts:x[3]}));show("game");render()}
+function render(){if(i>=items.length){finish();return}let x=items[i];$("progress").textContent=`${i+1} of ${items.length}`;$("fill").style.width=`${(i+1)/items.length*100}%`;$("cat").textContent=x.cat;$("q").textContent=x.q;$("feedback").className="feedback hidden";$("next").classList.add("hidden");let a=$("answers");a.innerHTML="";
+if(x.learn){let b=document.createElement("button");b.className="next";b.textContent="Show Answer";b.onclick=()=>{a.innerHTML=`<div class="tip" style="font-size:18px">${x.a}</div>`;$("next").classList.remove("hidden")};a.appendChild(b)}
+else shuffle(x.opts).forEach(o=>{let b=document.createElement("button");b.className="answer";b.textContent=o;b.onclick=()=>answer(o);a.appendChild(b)})}
+function answer(o){let x=items[i],ok=o===x.a;document.querySelectorAll(".answer").forEach(b=>b.disabled=true);let f=$("feedback");f.className="feedback "+(ok?"good":"bad");f.textContent=ok?"✓ Correct!":"✗ Correct answer: "+x.a;if(ok)score++;else if(!mistakes.some(m=>m.q===x.q))mistakes.push(x);updateMistakes();$("next").classList.remove("hidden")}
+function finish(){show("results");let pct=mode==="learn"?100:Math.round(score/Math.max(items.length,1)*100);$("emoji").textContent=pct>=80?"🎉":pct>=60?"👍":"💪";$("score").textContent=mode==="learn"?`${items.length} cards reviewed`:`${score}/${items.length} • ${pct}%`;$("msg").textContent=mode==="learn"?"Now try Quiz Me to test what you remember.":pct>=80?"Great job. Do another round to lock it in.":"Review the missed questions, then try again."}
+document.querySelectorAll("[data-mode]").forEach(b=>b.onclick=()=>start(b.dataset.mode));$("mistakes").onclick=()=>mistakes.length?start("mistakes"):alert("Take the quiz first. Anything missed will show up here.");$("homeBtn").onclick=()=>show("home");$("resultHome").onclick=()=>show("home");$("next").onclick=()=>{i++;render()};$("again").onclick=()=>start(mode);updateMistakes();
+</script></body></html>
